@@ -1,0 +1,5 @@
+{
+    "REDMINE_URL": "",
+    "REDMINE_KEY": "", //Enter Redmine API Key here
+    "USER": //Enter userID here
+}
