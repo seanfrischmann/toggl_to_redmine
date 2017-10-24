@@ -16,7 +16,7 @@ def main():
     with open('config.json') as configFile:
         config = json.load(configFile)
 
-    for field in ['REDMINE_URL', 'REDMINE_KEY', 'USER']:
+    for field in ['REDMINE_URL', 'REDMINE_KEY', 'USER', 'ACTIVITY_ID']:
         if (field not in config):
             print "Config File is missing:", field
             exit()
@@ -58,7 +58,7 @@ def main():
                 if (key in timeEntries):
                     if (timeEntries[key]['comments'] == timeEntry['comments']):
                         timeEntry['hours'] = round(
-                                timeEntry['hours'] + timeEntries[key]['hours'],2)
+                                timeEntry['hours'] + timeEntries[key]['hours'], 2)
                         timeEntries[key] = timeEntry
                 else:
                     timeEntries[key] = timeEntry
@@ -96,7 +96,7 @@ def main():
                         spent_on=newEntry['spent_on'],
                         hours=newEntry['hours'],
                         comments=newEntry['comments'],
-                        activity_id=55)
+                        activity_id=config['ACTIVITY_ID'])
         else:
             print "Creating:"
             print "    issue_id: ", newEntry['issue_id']
