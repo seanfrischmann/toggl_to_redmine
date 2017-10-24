@@ -109,7 +109,7 @@ def main():
                     spent_on=newEntry['spent_on'],
                     hours=newEntry['hours'],
                     comments=newEntry['comments'],
-                    activity_id=55)
+                    activity_id=config['ACTIVITY_ID'])
 
 def convert_time(time):
     b = datetime.datetime.strptime(time, "%H:%M:%S")
