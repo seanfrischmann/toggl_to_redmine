@@ -42,7 +42,7 @@ def main():
             elif ( entryDate > endDate ):
                 endDate = entryDate;
 
-            ticketNumber = re.match(r'\[Task #(\d+)]', description)
+            ticketNumber = re.match(r'\[(?:Task|Bug|Story) #(\d+)\]', description)
             if (ticketNumber):
                 ticketNumber = ticketNumber.group(1)
                 timeEntry = {
@@ -90,13 +90,14 @@ def main():
                 print "    comments: ", newEntry['comments']
                 print "    ", existingEntries[key]['hours'], ' vs ', newEntry['hours']
 
-                redmine.time_entry.update(
-                        existingEntries[key]['id'],
-                        issue_id=str(newEntry['issue_id']),
-                        spent_on=newEntry['spent_on'],
-                        hours=newEntry['hours'],
-                        comments=newEntry['comments'],
-                        activity_id=config['ACTIVITY_ID'])
+                if ('SEND_TO_REDMINE' not in config or config['SEND_TO_REDMINE']):
+                    redmine.time_entry.update(
+                            existingEntries[key]['id'],
+                            issue_id=str(newEntry['issue_id']),
+                            spent_on=newEntry['spent_on'],
+                            hours=newEntry['hours'],
+                            comments=newEntry['comments'],
+                            activity_id=config['ACTIVITY_ID'])
         else:
             print "Creating:"
             print "    issue_id: ", newEntry['issue_id']
@@ -104,12 +105,13 @@ def main():
             print "    hours: ", newEntry['hours']
             print "    comments: ", newEntry['comments']
 
-            redmine.time_entry.create(
-                    issue_id=str(newEntry['issue_id']),
-                    spent_on=newEntry['spent_on'],
-                    hours=newEntry['hours'],
-                    comments=newEntry['comments'],
-                    activity_id=config['ACTIVITY_ID'])
+            if ('SEND_TO_REDMINE' not in config or config['SEND_TO_REDMINE']):
+                redmine.time_entry.create(
+                        issue_id=str(newEntry['issue_id']),
+                        spent_on=newEntry['spent_on'],
+                        hours=newEntry['hours'],
+                        comments=newEntry['comments'],
+                        activity_id=config['ACTIVITY_ID'])
 
 def convert_time(time):
     b = datetime.datetime.strptime(time, "%H:%M:%S")
