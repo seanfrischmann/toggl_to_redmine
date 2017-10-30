@@ -16,7 +16,7 @@ def main():
     with open('config.json') as configFile:
         config = json.load(configFile)
 
-    for field in ['REDMINE_URL', 'REDMINE_KEY', 'USER', 'ACTIVITY_ID']:
+    for field in ['REDMINE_URL', 'REDMINE_KEY', 'USER_ID', 'ACTIVITY_ID']:
         if (field not in config):
             print "Config File is missing:", field
             exit()
@@ -44,12 +44,17 @@ def main():
 
             ticketNumber = re.match(r'\[(?:Task|Bug|Story) #(\d+)\]', description)
             if (ticketNumber):
+                description = description.replace(ticketNumber.group(0), '')
+
+                if (tags):
+                    description += ' [' + tags + ']'
+
                 ticketNumber = ticketNumber.group(1)
                 timeEntry = {
                     'issue_id': ticketNumber,
                     'spent_on': date,
                     'hours': convert_time(str(row[11])),
-                    'comments': description + ' Tags: ' + tags,
+                    'comments': description,
                     'activity_id': 55
                 }
 
@@ -68,7 +73,7 @@ def main():
     for entry in redmine.time_entry.filter(
             from_date=startDate.strftime('%Y-%m-%d'),
             to_date=endDate.strftime('%Y-%m-%d'),
-            user_id=config['USER'],
+            user_id=config['USER_ID'],
             activity_id=config['ACTIVITY_ID']):
         entriesList.append(entry)
 
