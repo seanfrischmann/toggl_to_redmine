@@ -69,7 +69,7 @@ def main():
             from_date=startDate.strftime('%Y-%m-%d'),
             to_date=endDate.strftime('%Y-%m-%d'),
             user_id=config['USER'],
-            activity_id=55):
+            activity_id=config['ACTIVITY_ID']):
         entriesList.append(entry)
 
     entriesList.sort(key=lambda entry: entry.id)
