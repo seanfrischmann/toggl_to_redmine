@@ -11,6 +11,9 @@ You will need:
 * Redmine User ID
 * Redmine Activiy ID
 
+Optional:
+* Round -- A value you would like round by.
+
 Copy the example file and fill in the necessary fields:
 ```
 cp config.json.example config.json
@@ -28,6 +31,14 @@ To execute the program, run the command:
 python main.py <csv_file>
 ```
 where `csv_file` is the name of your Toggl csv download *with* extension
+
+### Command Line Options
+```
+-v, --verbose Prints out information about the tasks being update or created
+```
+```
+-dr, --dry-run Runs program without updating or creating tasks in Redmine
+```
 
 ## Notes
 * The program uses the Redmine ticket number, Toggl description, Toggl tags

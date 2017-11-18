@@ -2,5 +2,6 @@
     "REDMINE_URL": "",
     "REDMINE_KEY": "",
     "USER_ID": ,
-    "ACTIVITY_ID":
+    "ACTIVITY_ID": ,
+    "ROUND":
 }

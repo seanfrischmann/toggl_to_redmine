@@ -3,18 +3,23 @@ import re
 import datetime
 import json
 import sys
+import argparse
 from redmine import Redmine
 
+parser = argparse.ArgumentParser(description='Process Toggl CsV')
+parser.add_argument('file_name', action='store')
+parser.add_argument('-dr', '--dry-run', action='store_true',
+        help='Disables sending information to Redmine')
+parser.add_argument('-v', '--verbose', action='store_true',
+        help='Prints out information about what is being created or updated')
+
+args = vars(parser.parse_args())
+config = []
+with open('config.json') as configFile:
+    config = json.load(configFile)
+
 def main():
-    if (len(sys.argv) < 2):
-        print "run command: python main.py <csv_file>"
-        exit()
-
-    togglFile = sys.argv[1]
-
-    config = []
-    with open('config.json') as configFile:
-        config = json.load(configFile)
+    togglFile = args['file_name']
 
     for field in ['REDMINE_URL', 'REDMINE_KEY', 'USER_ID', 'ACTIVITY_ID']:
         if (field not in config):
@@ -87,15 +92,16 @@ def main():
         newEntry = timeEntries[key]
 
         if (key in existingEntries):
-            if (existingEntries[key]['hours'] != newEntry['hours']):
-                print "Updating Entry: ", existingEntries[key]['id']
-                print "    issue_id: ", newEntry['issue_id']
-                print "    spent_on: ", newEntry['spent_on']
-                print "    hours: ", newEntry['hours']
-                print "    comments: ", newEntry['comments']
-                print "    ", existingEntries[key]['hours'], ' vs ', newEntry['hours']
+            if (str(existingEntries[key]['hours']) != str(newEntry['hours'])):
+                if (args['verbose']):
+                    print "Updating Entry: ", existingEntries[key]['id']
+                    print "    issue_id: ", newEntry['issue_id']
+                    print "    spent_on: ", newEntry['spent_on']
+                    print "    hours: ", newEntry['hours']
+                    print "    comments: ", newEntry['comments']
+                    print "    ", existingEntries[key]['hours'], ' vs ', newEntry['hours']
 
-                if ('SEND_TO_REDMINE' not in config or config['SEND_TO_REDMINE']):
+                if (args['dry_run'] is False):
                     redmine.time_entry.update(
                             existingEntries[key]['id'],
                             issue_id=str(newEntry['issue_id']),
@@ -104,13 +110,14 @@ def main():
                             comments=newEntry['comments'],
                             activity_id=config['ACTIVITY_ID'])
         else:
-            print "Creating:"
-            print "    issue_id: ", newEntry['issue_id']
-            print "    spent_on: ", newEntry['spent_on']
-            print "    hours: ", newEntry['hours']
-            print "    comments: ", newEntry['comments']
+            if (args['verbose']):
+                print "Creating:"
+                print "    issue_id: ", newEntry['issue_id']
+                print "    spent_on: ", newEntry['spent_on']
+                print "    hours: ", newEntry['hours']
+                print "    comments: ", newEntry['comments']
 
-            if ('SEND_TO_REDMINE' not in config or config['SEND_TO_REDMINE']):
+            if (args['dry_run'] is False):
                 redmine.time_entry.create(
                         issue_id=str(newEntry['issue_id']),
                         spent_on=newEntry['spent_on'],
@@ -123,7 +130,17 @@ def convert_time(time):
     c = datetime.timedelta(hours=b.hour, minutes=b.minute, seconds=b.second)
     hours = c.seconds / 3600.0
 
-    return round(hours, 2)
+    return custom_rounding(round(hours, 2))
+
+# Round to the nearest 6 minutes
+def custom_rounding(hours):
+    if config['ROUND']:
+        customHours = round(hours / config['ROUND']) * config['ROUND']
+
+        if (customHours > hours):
+            return customHours
+
+    return hours
 
 
 main()
