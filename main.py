@@ -90,6 +90,7 @@ def main():
 
     for key in timeEntries:
         newEntry = timeEntries[key]
+        newEntry['hours'] = custom_rounding(newEntry['hours'])
 
         if (key in existingEntries):
             if (str(existingEntries[key]['hours']) != str(newEntry['hours'])):
@@ -130,7 +131,7 @@ def convert_time(time):
     c = datetime.timedelta(hours=b.hour, minutes=b.minute, seconds=b.second)
     hours = c.seconds / 3600.0
 
-    return custom_rounding(round(hours, 2))
+    return round(hours, 2)
 
 # Round to the nearest 6 minutes
 def custom_rounding(hours):
